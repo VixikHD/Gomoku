@@ -1,0 +1,37 @@
+.hint-spoiler {
+    margin-top: 20px;
+}
+.cell {
+    display: flex;
+    border: 1px solid #ddd;
+}
+
+.cell:hover {
+    background-color: rgba(0, 0, 0, 0.03);
+}
+
+.x:hover {
+    background-color: rgba(0,0,0,0);
+}
+.o:hover {
+    background-color: rgba(0,0,0,0);
+}
+
+.x {
+    background: url(../img/x.png) center no-repeat;
+    background-size: 24px;
+}
+
+.o {
+    background: url(../img/o.png) center no-repeat;
+    background-size: 24px;
+}
+
+.game-grid {
+    display: grid;
+    border: 2px solid #bbb;
+    grid-template-columns: repeat(15, 30px);
+    grid-template-rows: repeat(15, 30px);
+    width: 450px;
+    height: 450px;
+}
