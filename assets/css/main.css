@@ -1,6 +1,7 @@
 .hint-spoiler {
     margin-top: 20px;
 }
+
 .cell {
     display: flex;
     border: 1px solid #ddd;
@@ -11,10 +12,11 @@
 }
 
 .x:hover {
-    background-color: rgba(0,0,0,0);
+    background-color: rgba(0, 0, 0, 0);
 }
+
 .o:hover {
-    background-color: rgba(0,0,0,0);
+    background-color: rgba(0, 0, 0, 0);
 }
 
 .x {
