@@ -78,30 +78,27 @@ export class AIv2 extends AIv1 {
 		priorities = super.prioritizeCells(cells, priorities, symbol);
 
 		let threeInRow: SymbolRow[] = (new GameModel(this.getGrid(), opponentSymbol(symbol))).getOpenThreeInRow();
-		if(threeInRow.length !== 0) {
-			for(const row of threeInRow) {
-				priorities[findIndex(row.row[0].subtractVector(row.direction), cells)] += 9;
-				priorities[findIndex(row.row[2].addVector(row.direction), cells)] += 9;
-			}
+		for(const row of threeInRow) {
+			priorities[findIndex(row.row[0].subtractVector(row.direction), cells)] += 9;
+			priorities[findIndex(row.row[2].addVector(row.direction), cells)] += 9;
 		}
 
 		let fourInRow: SymbolRow[] = (new GameModel(this.getGrid(), opponentSymbol(symbol))).getClosedFourInRow();
-		if(fourInRow.length !== 0) {
-			for(const row of fourInRow) {
-				if((!row.row[0].subtractVector(row.direction).isOutOfBounds()) && this.getGrid().getSymbolAt(row.row[0].subtractVector(row.direction)) == GameSymbol.NONE) {
-					priorities[findIndex(row.row[0].subtractVector(row.direction), cells)] += 100;
+		for(const row of fourInRow) {
+			if((!row.row[0].subtractVector(row.direction).isOutOfBounds()) && this.getGrid().getSymbolAt(row.row[0].subtractVector(row.direction)) == GameSymbol.NONE) {
+				priorities[findIndex(row.row[0].subtractVector(row.direction), cells)] += 100;
+			} else
+				if((!row.row[0].addVector(row.direction).isOutOfBounds()) && this.getGrid().getSymbolAt(row.row[0].addVector(row.direction)) == GameSymbol.NONE) {
+					priorities[findIndex(row.row[0].addVector(row.direction), cells)] += 100;
 				} else
-					if((!row.row[0].addVector(row.direction).isOutOfBounds()) && this.getGrid().getSymbolAt(row.row[0].addVector(row.direction)) == GameSymbol.NONE) {
-						priorities[findIndex(row.row[0].addVector(row.direction), cells)] += 100;
+					if((!row.row[3].subtractVector(row.direction).isOutOfBounds()) && this.getGrid().getSymbolAt(row.row[3].subtractVector(row.direction)) == GameSymbol.NONE) {
+						priorities[findIndex(row.row[3].subtractVector(row.direction), cells)] += 100;
 					} else
-						if((!row.row[3].subtractVector(row.direction).isOutOfBounds()) && this.getGrid().getSymbolAt(row.row[3].subtractVector(row.direction)) == GameSymbol.NONE) {
-							priorities[findIndex(row.row[3].subtractVector(row.direction), cells)] += 100;
-						} else
-							if((!row.row[3].addVector(row.direction).isOutOfBounds()) && this.getGrid().getSymbolAt(row.row[3].addVector(row.direction)) == GameSymbol.NONE) {
-								priorities[findIndex(row.row[3].addVector(row.direction), cells)] += 100;
-							}
-			}
+						if((!row.row[3].addVector(row.direction).isOutOfBounds()) && this.getGrid().getSymbolAt(row.row[3].addVector(row.direction)) == GameSymbol.NONE) {
+							priorities[findIndex(row.row[3].addVector(row.direction), cells)] += 100;
+						}
 		}
+
 
 		return priorities;
 	}

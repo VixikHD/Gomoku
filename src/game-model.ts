@@ -1,6 +1,6 @@
 import {Vector2} from "./vector";
 import {GRID_SIZE} from "./main";
-import {cloneObjectArray} from "./utils";
+import {clone, cloneObjectArray} from "./utils";
 
 export const DIRECTIONS: Vector2[] = [
 	new Vector2(1, 1),
@@ -166,6 +166,7 @@ export class GameModel {
 	// 3
 	private openThreeInRow: SymbolRow[] = [];
 	private closedThreeInRow: SymbolRow[] = [];
+	private openSplitThreeInRow: SymbolRow[] = [];
 	// 4
 	private openFourInRow: SymbolRow[] = [];
 	private closedFourInRow: SymbolRow[] = [];
@@ -196,137 +197,100 @@ export class GameModel {
 	}
 
 	private analyseGrid(): void {
-		let cells: Vector2[] = this.grid.getCellsWithSymbol(this.symbol);
+		// \/
+		for(let x: number = 0; x < GRID_SIZE; ++x) {
+			this.analyseRow(new Vector2(x, 0), new Vector2(0, 1));
+		}
 
-		let nextVector: Vector2;
-		let nextSymbol: GameSymbol;
-		for(const cell of cells) {
-			for(const direction of DIRECTIONS) {
-				let currentRow: SymbolCollection = new SymbolCollection();
-				let closed: boolean = true;
-				for(let i: number = 1 - GRID_SIZE; i < GRID_SIZE; ++i) {
-					nextVector = cell.addVector(direction.multiply(i)); // next vector in the row
-					if(nextVector.isOutOfBounds()) {
-						continue;
-					}
+		// ->
+		for(let y: number = 0; y < GRID_SIZE; ++y) {
+			this.analyseRow(new Vector2(0, y), new Vector2(1, 0));
+		}
 
-					nextSymbol = this.grid.getSymbolAt(nextVector);
-					if(nextSymbol !== this.symbol && currentRow.length() !== 0) {
-						if(nextSymbol !== GameSymbol.NONE) {
-							if(closed) {
-								currentRow = new SymbolCollection();
-								closed = true;
-								continue;
-							}
-							console.log("Closing the row");
-							closed = true;
-						}
+		// _\|
+		this.analyseRow(new Vector2(0, 0), new Vector2(1, 1));
+		for(let diagonalA: number = 1; diagonalA < GRID_SIZE - 4; ++diagonalA) {
+			this.analyseRow(new Vector2(diagonalA, 0), new Vector2(1, 1));
+			this.analyseRow(new Vector2(0, diagonalA), new Vector2(1, 1));
+		}
 
-						let finalRow: SymbolRow = currentRow.toSymbolRow(direction);
-						switch(currentRow.length()) {
-							case 3:
-								if(closed) {
-									console.log("Found closed three in a row");
-									if(GameModel.canSaveRow(this.closedThreeInRow, finalRow))
-										this.closedThreeInRow.push(finalRow);
-								} else {
-									console.log("Found three in a row");
-									if(GameModel.canSaveRow(this.openThreeInRow, finalRow))
-										this.openThreeInRow.push(finalRow);
-								}
-								break;
-							case 4:
-								if(closed) {
-									if(GameModel.canSaveRow(this.closedFourInRow, finalRow))
-										this.closedFourInRow.push(finalRow);
-								} else {
-									if(GameModel.canSaveRow(this.openFourInRow, finalRow))
-										this.openFourInRow.push(finalRow);
-								}
-								break;
-						}
-
-						currentRow = new SymbolCollection();
-						closed = true;
-						continue;
-					}
-
-					if(currentRow.length() === 0) {
-						if(nextSymbol === opponentSymbol(this.symbol)) {
-							closed = true;
-						} else
-							if(nextSymbol === GameSymbol.NONE) {
-								closed = false;
-							} else {
-								currentRow.addSymbol(nextVector);
-							}
-						continue;
-					}
-
-					currentRow.addSymbol(nextVector);
-				}
-
-				// let symbolsFound : Vector2[] = [];
-				// let iteration : number = 0;
-				// let emptyCell : boolean = false;
-				// for(let i : number = 1 - GRID_SIZE; i < GRID_SIZE; ++i) {
-				//     nextVector = cell.addVector(direction.multiply(i)); // next vector in the row
-				//     if(nextVector.isOutOfBounds()) { // if the vector is not inside of the grid, continue
-				//         continue;
-				//     }
-				//
-				//     nextSymbol = this.grid.getSymbolAt(nextVector); // symbol located at next vector
-				//
-				//     // cells are being counted from first non-empty cell so that we return either open or closed row
-				//     // if next symbol is ai's then we add them to the array when the condition (cell before is empty or we are not on first iteration)
-				//     if((iteration !== 0 || emptyCell) && nextSymbol === this.symbol) {
-				//         iteration++;
-				//         symbolsFound.push(nextVector);
-				//         emptyCell = false;
-				//         console.log("Found " + iteration + ". symbol in a row")
-				//     }
-				//
-				//     if(nextSymbol !== this.symbol || nextVector.isEdgeCell()) {
-				//         let symbolRow : SymbolRow = new SymbolRow(symbolsFound, direction);
-				//         switch (iteration) {
-				//             case 2:
-				//                 if(nextSymbol === GameSymbol.NONE) {
-				//                     this.twoInRow.push(clone(symbolRow));
-				//                 }
-				//                 break;
-				//             case 3:
-				//                 if(nextSymbol === GameSymbol.NONE) {
-				//                     this.openThreeInRow.push(clone(symbolRow));
-				//                 } else {
-				//                     this.closedThreeInRow.push(clone(symbolRow));
-				//                 }
-				//                 console.log("s: " + symbolsFound.length + "; i: " + iteration);
-				//                 break;
-				//             case 4:
-				//                 if(nextSymbol === GameSymbol.NONE) {
-				//                     this.openFourInRow.push(clone(symbolRow));
-				//                 } else {
-				//                     this.closedFourInRow.push(clone(symbolRow));
-				//                 }
-				//                 console.log("s: " + symbolsFound.length + "; i: " + iteration);
-				//                 break;
-				//         }
-				//     }
-				//
-				//     if(nextSymbol === GameSymbol.NONE) {
-				//         emptyCell = true;
-				//         iteration = 0;
-				//         symbolsFound = [];
-				//     } else if(nextSymbol !== this.symbol) {
-				//         emptyCell = false;
-				//         iteration = 0;
-				//         symbolsFound = [];
-				//     }
-				// }
-			}
+		// ˝/|
+		this.analyseRow(new Vector2(0, GRID_SIZE - 1), new Vector2(1, -1));
+		for(let diagonalB: number = 1; diagonalB < GRID_SIZE - 4; ++diagonalB) {
+			this.analyseRow(new Vector2(0, (GRID_SIZE - 1) - diagonalB), new Vector2(1, -1));
+			this.analyseRow(new Vector2(diagonalB, 0), new Vector2(1, -1));
 		}
 	}
 
+	private saveRow(row: SymbolRow, closed: boolean): void {
+		switch(row.row.length) {
+			case 3:
+				if(closed) {
+					this.closedThreeInRow.push(row);
+				} else {
+					this.openThreeInRow.push(row);
+				}
+				break;
+			case 4:
+				if(closed) {
+					this.closedFourInRow.push(row);
+				} else {
+					this.openFourInRow.push(row);
+				}
+				break;
+		}
+	}
+
+	private analyseRow(start: Vector2, direction: Vector2): void {
+		let currentRow: SymbolCollection = new SymbolCollection();
+		let closed: boolean = true; // Closed because the iteration starts at end of the row
+
+		let lastRow: SymbolCollection; // Last row represents last found row when it's not closed
+
+		let nextCell: Vector2;
+		let nextSymbol: GameSymbol;
+		for(let i: number = 0; i < GRID_SIZE; ++i) {
+			nextCell = start.addVector(direction.multiply(i));
+			if(nextCell.isOutOfBounds()) {
+				break;
+			}
+
+			nextSymbol = this.grid.getSymbolAt(nextCell);
+
+			// Saving
+			if(nextSymbol !== this.symbol && currentRow.length() !== 0) {
+				if(nextSymbol === GameSymbol.NONE) {
+					lastRow = clone(currentRow);
+					closed = false;
+				} else {
+					if(closed) {
+						currentRow = new SymbolCollection();
+						continue;
+					}
+					closed = true;
+				}
+
+				this.saveRow(currentRow.toSymbolRow(direction), closed);
+				currentRow = new SymbolCollection();
+				continue;
+			}
+
+			if(currentRow.length() === 0) {
+				if(nextSymbol === opponentSymbol(this.symbol)) {
+					closed = true;
+				} else
+					if(nextSymbol === GameSymbol.NONE) {
+						closed = false;
+					} else {
+						currentRow.addSymbol(nextCell);
+					}
+				continue;
+			}
+
+			currentRow.addSymbol(nextCell);
+		}
+	}
+	
 	public getTwoInRow(): SymbolRow[] {
 		return this.twoInRow;
 	}
