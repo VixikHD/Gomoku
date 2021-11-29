@@ -218,12 +218,29 @@ export class GameModel {
 		this.analyseRow(new Vector2(0, GRID_SIZE - 1), new Vector2(1, -1));
 		for(let diagonalB: number = 1; diagonalB < GRID_SIZE - 4; ++diagonalB) {
 			this.analyseRow(new Vector2(0, (GRID_SIZE - 1) - diagonalB), new Vector2(1, -1));
-			this.analyseRow(new Vector2(diagonalB, 0), new Vector2(1, -1));
+			this.analyseRow(new Vector2(diagonalB, GRID_SIZE - 1), new Vector2(1, -1));
 		}
 	}
 
-	private saveRow(row: SymbolRow, closed: boolean): void {
+	private saveRow(row: SymbolRow, closed: boolean, lastRow: SymbolRow | null = null): void {
 		switch(row.row.length) {
+			case 1:
+				if(lastRow !== null && lastRow.row.length === 2) {
+					if(!closed) {
+						row.row.push(lastRow.row[0]);
+						row.row.push(lastRow.row[1]);
+						this.openSplitThreeInRow.push(row);
+					}
+				}
+				break;
+			case 2:
+				if(lastRow !== null && lastRow.row.length === 1) {
+					if(!closed) {
+						row.row.push(lastRow.row[0]);
+						this.openSplitThreeInRow.push(row);
+					}
+				}
+				break;
 			case 3:
 				if(closed) {
 					this.closedThreeInRow.push(row);
@@ -245,7 +262,7 @@ export class GameModel {
 		let currentRow: SymbolCollection = new SymbolCollection();
 		let closed: boolean = true; // Closed because the iteration starts at end of the row
 
-		let lastRow: SymbolCollection; // Last row represents last found row when it's not closed
+		let lastRow: SymbolCollection = null; // Last row represents last found row when it's not closed
 
 		let nextCell: Vector2;
 		let nextSymbol: GameSymbol;
@@ -259,6 +276,10 @@ export class GameModel {
 
 			// Saving
 			if(nextSymbol !== this.symbol && currentRow.length() !== 0) {
+				if(!closed || nextSymbol === GameSymbol.NONE) {
+					this.saveRow(currentRow.toSymbolRow(direction), closed || nextSymbol == opponentSymbol(this.symbol), lastRow !== null ? lastRow.toSymbolRow(direction) : null);
+				}
+
 				if(nextSymbol === GameSymbol.NONE) {
 					lastRow = clone(currentRow);
 					closed = false;
@@ -270,7 +291,6 @@ export class GameModel {
 					closed = true;
 				}
 
-				this.saveRow(currentRow.toSymbolRow(direction), closed);
 				currentRow = new SymbolCollection();
 				continue;
 			}
@@ -278,19 +298,22 @@ export class GameModel {
 			if(currentRow.length() === 0) {
 				if(nextSymbol === opponentSymbol(this.symbol)) {
 					closed = true;
-				} else
+					lastRow = null;
+				} else {
 					if(nextSymbol === GameSymbol.NONE) {
 						closed = false;
+						lastRow = null;
 					} else {
 						currentRow.addSymbol(nextCell);
 					}
+				}
 				continue;
 			}
 
 			currentRow.addSymbol(nextCell);
 		}
 	}
-	
+
 	public getTwoInRow(): SymbolRow[] {
 		return this.twoInRow;
 	}

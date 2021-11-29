@@ -77,13 +77,15 @@ export class AIv2 extends AIv1 {
 	protected prioritizeCells(cells: Vector2[], priorities: number[], symbol: GameSymbol): number[] {
 		priorities = super.prioritizeCells(cells, priorities, symbol);
 
-		let threeInRow: SymbolRow[] = (new GameModel(this.getGrid(), opponentSymbol(symbol))).getOpenThreeInRow();
+		let gameModel: GameModel = new GameModel(this.getGrid(), opponentSymbol(symbol));
+
+		let threeInRow: SymbolRow[] = gameModel.getOpenThreeInRow();
 		for(const row of threeInRow) {
 			priorities[findIndex(row.row[0].subtractVector(row.direction), cells)] += 9;
 			priorities[findIndex(row.row[2].addVector(row.direction), cells)] += 9;
 		}
 
-		let fourInRow: SymbolRow[] = (new GameModel(this.getGrid(), opponentSymbol(symbol))).getClosedFourInRow();
+		let fourInRow: SymbolRow[] = gameModel.getClosedFourInRow();
 		for(const row of fourInRow) {
 			if((!row.row[0].subtractVector(row.direction).isOutOfBounds()) && this.getGrid().getSymbolAt(row.row[0].subtractVector(row.direction)) == GameSymbol.NONE) {
 				priorities[findIndex(row.row[0].subtractVector(row.direction), cells)] += 100;
