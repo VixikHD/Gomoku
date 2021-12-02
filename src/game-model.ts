@@ -67,53 +67,17 @@ export class GameGrid {
 	}
 
 	public findFiveInARow(): GameSymbol {
-		let xCells: Vector2[] = this.getCellsWithSymbol(GameSymbol.X);
-		let oCells: Vector2[] = this.getCellsWithSymbol(GameSymbol.O);
-
-		function findFiveInRow(cells: Vector2[]): boolean {
-			function exists(cell: Vector2) {
-				for(const c of cells) {
-					if(cell.equals(c)) {
-						return true;
-					}
-				}
-
-				return false;
-			}
-
-			for(const direction of DIRECTIONS) {
-				for(const cell of cells) {
-					let row: number = 0;
-					let nextVector: Vector2;
-					for(let i: number = 1 - GRID_SIZE; i < GRID_SIZE; ++i) {
-						nextVector = cell.addVector(direction.multiply(i));
-						if(nextVector.isOutOfBounds()) {
-							continue;
-						}
-
-						if(exists(nextVector)) {
-							row++;
-						} else {
-							row = 0;
-						}
-
-						if(row === 5) {
-							return true;
-						}
-					}
-				}
-			}
-
-			return false;
+		let gameModel: GameModel;
+		gameModel = new GameModel(this, GameSymbol.X);
+		if(gameModel.getFiveInRow().length !== 0) {
+			return GameSymbol.X;
 		}
 
-		if(findFiveInRow(xCells)) {
-			return GameSymbol.X;
-		} else
-			if(findFiveInRow(oCells)) {
-				return GameSymbol.O;
-			}
-
+		gameModel = new GameModel(this, GameSymbol.O);
+		if(gameModel.getFiveInRow().length !== 0) {
+			return GameSymbol.O;
+		}
+		
 		return GameSymbol.NONE;
 	}
 
@@ -170,6 +134,8 @@ export class GameModel {
 	// 4
 	private openFourInRow: SymbolRow[] = [];
 	private closedFourInRow: SymbolRow[] = [];
+	// 5
+	private fiveInRow: SymbolRow[] = [];
 
 	public constructor(grid: GameGrid, symbol: GameSymbol) {
 		this.grid = grid;
@@ -255,6 +221,8 @@ export class GameModel {
 					this.openFourInRow.push(row);
 				}
 				break;
+			case 5:
+				this.fiveInRow.push(row);
 		}
 	}
 
@@ -324,5 +292,9 @@ export class GameModel {
 
 	public getClosedFourInRow(): SymbolRow[] {
 		return this.closedFourInRow;
+	}
+
+	public getFiveInRow(): SymbolRow[] {
+		return this.fiveInRow;
 	}
 }
