@@ -4,6 +4,7 @@ import {Vector2} from "./vector";
 import {AIResult, AIv2} from "./ai";
 
 export const GRID_SIZE: number = 15;
+export const IS_DEBUG_ENABLED: boolean = false;
 
 console.log("Starting the application");
 
@@ -68,15 +69,17 @@ function handleClick(clickPosition: Vector2): void {
 	displaySymbol(aiResult.finalPos, aiSymbol);
 	saveSymbol(aiResult.finalPos, aiSymbol);
 
-	let vec: Vector2;
-	let i: number = 0;
-	for(let x: number = 0; x < GRID_SIZE; ++x) {
-		for(let y: number = 0; y < GRID_SIZE; ++y) {
-			vec = new Vector2(x, y);
-			if(gameGrid.getSymbolAt(vec) === GameSymbol.NONE || vec.equals(aiResult.finalPos)) {
-				displayPriority(vec, aiResult.priorities[i++]);
-			} else {
-				displayPriority(vec, -1);
+	if(IS_DEBUG_ENABLED) {
+		let vec: Vector2;
+		let i: number = 0;
+		for(let x: number = 0; x < GRID_SIZE; ++x) {
+			for(let y: number = 0; y < GRID_SIZE; ++y) {
+				vec = new Vector2(x, y);
+				if(gameGrid.getSymbolAt(vec) === GameSymbol.NONE || vec.equals(aiResult.finalPos)) {
+					displayPriority(vec, aiResult.priorities[i++]);
+				} else {
+					displayPriority(vec, -1);
+				}
 			}
 		}
 	}

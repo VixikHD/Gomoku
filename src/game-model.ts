@@ -57,7 +57,7 @@ export class GameGrid {
 		let cells: Vector2[] = [];
 		for(let x: number = minX; x <= maxX; ++x) {
 			for(let y: number = minY; y <= maxY; ++y) {
-				if(gameSymbol === null || this.grid[x][y] == gameSymbol) {
+				if(gameSymbol === null || this.grid[x][y] === gameSymbol) {
 					cells.push(new Vector2(x, y));
 				}
 			}
@@ -188,23 +188,11 @@ export class GameModel {
 		}
 	}
 
-	private saveRow(row: SymbolRow, closed: boolean, lastRow: SymbolRow | null = null): void {
+	private saveRow(row: SymbolRow, closed: boolean): void {
 		switch(row.row.length) {
-			case 1:
-				if(lastRow !== null && lastRow.row.length === 2) {
-					if(!closed) {
-						row.row.push(lastRow.row[0]);
-						row.row.push(lastRow.row[1]);
-						this.openSplitThreeInRow.push(row);
-					}
-				}
-				break;
 			case 2:
-				if(lastRow !== null && lastRow.row.length === 1) {
-					if(!closed) {
-						row.row.push(lastRow.row[0]);
-						this.openSplitThreeInRow.push(row);
-					}
+				if(!closed) {
+					this.twoInRow.push(row);
 				}
 				break;
 			case 3:
@@ -245,7 +233,7 @@ export class GameModel {
 			// Saving
 			if(nextSymbol !== this.symbol && currentRow.length() !== 0) {
 				if(!closed || nextSymbol === GameSymbol.NONE) {
-					this.saveRow(currentRow.toSymbolRow(direction), closed || nextSymbol == opponentSymbol(this.symbol), lastRow !== null ? lastRow.toSymbolRow(direction) : null);
+					this.saveRow(currentRow.toSymbolRow(direction), closed || nextSymbol == opponentSymbol(this.symbol));
 				}
 
 				if(nextSymbol === GameSymbol.NONE) {
@@ -284,6 +272,10 @@ export class GameModel {
 
 	public getTwoInRow(): SymbolRow[] {
 		return this.twoInRow;
+	}
+
+	public getClosedThreeInRow(): SymbolRow[] {
+		return this.closedThreeInRow;
 	}
 
 	public getOpenThreeInRow(): SymbolRow[] {
