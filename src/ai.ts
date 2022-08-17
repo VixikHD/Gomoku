@@ -86,6 +86,7 @@ class AIv1 {
  */
 export class AIv2 extends AIv1 {
 	protected static OPEN_TWO_ROW_PRIORITY = AIv2.SYMBOL_PRIORITY * 9 + 1;
+	protected static CLOSED_THREE_ROW_PRIORITY = AIv2.OPEN_TWO_ROW_PRIORITY;
 	protected static OPEN_THREE_ROW_PRIORITY = AIv2.OPEN_TWO_ROW_PRIORITY * 9 + 1;
 	protected static HALF_OPEN_FOUR_ROW_PRIORITY = AIv2.OPEN_THREE_ROW_PRIORITY * 9 + 1;
 
@@ -152,8 +153,8 @@ export class AIv2 extends AIv1 {
 				priorities[findIndex(currentPos, cells)] += AIv2.HALF_OPEN_FOUR_ROW_PRIORITY;
 			}
 
-			priorities[findIndex(row.row[0].subtractVector(row.direction), cells)] += AIv2.OPEN_THREE_ROW_PRIORITY;
-			priorities[findIndex(row.row[2].addVector(row.direction), cells)] += AIv2.OPEN_THREE_ROW_PRIORITY;
+			priorities[findIndex(row.row[0].subtractVector(row.direction), cells)] += AIv2.CLOSED_THREE_ROW_PRIORITY;
+			priorities[findIndex(row.row[2].addVector(row.direction), cells)] += AIv2.CLOSED_THREE_ROW_PRIORITY;
 		}
 
 		// Prioritize 4 in row
