@@ -139,8 +139,8 @@ class AIv2 extends AIv1 {
 				priorities[findIndex(currentPos, cells)] += AIv2.OPEN_THREE_ROW_PRIORITY;
 			}
 
-			priorities[findIndex(row.row[0].subtractVector(row.direction), cells)] += AIv2.OPEN_TWO_ROW_PRIORITY;
-			priorities[findIndex(row.row[1].addVector(row.direction), cells)] += AIv2.OPEN_TWO_ROW_PRIORITY;
+			priorities[this.findSymbolIndexInDirection(row, cells)] += AIv2.OPEN_TWO_ROW_PRIORITY;
+			priorities[this.findSymbolIndexInDirection(row, cells, 1, 1)] += AIv2.OPEN_TWO_ROW_PRIORITY;
 		}
 
 		// Prioritize open 3 & 3 + 1 in row
@@ -159,8 +159,8 @@ class AIv2 extends AIv1 {
 				priorities[findIndex(currentPos, cells)] += AIv2.HALF_OPEN_FOUR_ROW_PRIORITY;
 			}
 
-			priorities[findIndex(row.row[0].subtractVector(row.direction), cells)] += AIv2.OPEN_THREE_ROW_PRIORITY;
-			priorities[findIndex(row.row[2].addVector(row.direction), cells)] += AIv2.OPEN_THREE_ROW_PRIORITY;
+			priorities[this.findSymbolIndexInDirection(row, cells)] += AIv2.OPEN_THREE_ROW_PRIORITY;
+			priorities[this.findSymbolIndexInDirection(row, cells, 2, 1)] += AIv2.OPEN_THREE_ROW_PRIORITY;
 		}
 
 		// Prioritize closed 3 + 1
@@ -186,14 +186,11 @@ class AIv2 extends AIv1 {
 		// Prioritize 4 in row
 		let fourInRow: SymbolRow[] = gameModel.getClosedFourInRow();
 		for(const row of fourInRow) {
-			if((!row.row[0].subtractVector(row.direction).isOutOfBounds()) && this.getGrid().getSymbolAt(row.row[0].subtractVector(row.direction)) === GameSymbol.NONE) {
-				priorities[findIndex(row.row[0].subtractVector(row.direction), cells)] += AIv2.HALF_OPEN_FOUR_ROW_PRIORITY;
-			} else if((!row.row[0].addVector(row.direction).isOutOfBounds()) && this.getGrid().getSymbolAt(row.row[0].addVector(row.direction)) === GameSymbol.NONE) {
-				priorities[findIndex(row.row[0].addVector(row.direction), cells)] += AIv2.HALF_OPEN_FOUR_ROW_PRIORITY;
-			} else if((!row.row[3].subtractVector(row.direction).isOutOfBounds()) && this.getGrid().getSymbolAt(row.row[3].subtractVector(row.direction)) === GameSymbol.NONE) {
-				priorities[findIndex(row.row[3].subtractVector(row.direction), cells)] += AIv2.HALF_OPEN_FOUR_ROW_PRIORITY;
-			} else if((!row.row[3].addVector(row.direction).isOutOfBounds()) && this.getGrid().getSymbolAt(row.row[3].addVector(row.direction)) === GameSymbol.NONE) {
-				priorities[findIndex(row.row[3].addVector(row.direction), cells)] += AIv2.HALF_OPEN_FOUR_ROW_PRIORITY;
+			if(this.getSymbolInDirection(row) === GameSymbol.NONE) {
+				priorities[this.findSymbolIndexInDirection(row, cells)] += AIv2.HALF_OPEN_FOUR_ROW_PRIORITY;
+			}
+			if(this.getSymbolInDirection(row, 3, 1) === GameSymbol.NONE) {
+				priorities[this.findSymbolIndexInDirection(row, cells, 3, 1)] += AIv2.HALF_OPEN_FOUR_ROW_PRIORITY;
 			}
 		}
 
@@ -235,31 +232,30 @@ export class AIv3 extends AIv2 {
 		// Finishing four in row
 		let fourInRow: SymbolRow[] = gameModel.getOpenFourInRow();
 		for(const row of fourInRow) {
-			if((!row.row[0].subtractVector(row.direction).isOutOfBounds()) && this.getGrid().getSymbolAt(row.row[0].subtractVector(row.direction)) === GameSymbol.NONE) {
-				priorities[findIndex(row.row[0].subtractVector(row.direction), cells)] += AIv3.WIN_PRIORITY;
+			if(this.getSymbolInDirection(row) === GameSymbol.NONE) {
+				priorities[this.findSymbolIndexInDirection(row, cells)] += AIv3.WIN_PRIORITY;
 			}
-			if ((!row.row[3].addVector(row.direction).isOutOfBounds()) && this.getGrid().getSymbolAt(row.row[3].addVector(row.direction)) === GameSymbol.NONE) {
-				priorities[findIndex(row.row[3].addVector(row.direction), cells)] += AIv3.WIN_PRIORITY;
+			if (this.getSymbolInDirection(row, 3, 1) === GameSymbol.NONE) {
+				priorities[this.findSymbolIndexInDirection(row, cells, 3, 1)] += AIv3.WIN_PRIORITY;
 			}
 		}
 		let closedFourInRow: SymbolRow[] = gameModel.getClosedFourInRow();
 		for(const row of closedFourInRow) {
-			if ((!row.row[0].subtractVector(row.direction).isOutOfBounds()) && this.getGrid().getSymbolAt(row.row[0].subtractVector(row.direction)) === GameSymbol.NONE) {
-				priorities[findIndex(row.row[0].subtractVector(row.direction), cells)] += AIv3.WIN_PRIORITY;
+			if(this.getSymbolInDirection(row) === GameSymbol.NONE) {
+				priorities[this.findSymbolIndexInDirection(row, cells)] += AIv3.WIN_PRIORITY;
 			}
-			if ((!row.row[3].addVector(row.direction).isOutOfBounds()) && this.getGrid().getSymbolAt(row.row[3].addVector(row.direction)) === GameSymbol.NONE) {
-				priorities[findIndex(row.row[3].addVector(row.direction), cells)] += AIv3.WIN_PRIORITY;
+			if (this.getSymbolInDirection(row, 3, 1) === GameSymbol.NONE) {
+				priorities[this.findSymbolIndexInDirection(row, cells, 3, 1)] += AIv3.WIN_PRIORITY;
 			}
 		}
-
 		// Promoting open three
 		let threeInRow: SymbolRow[] = gameModel.getOpenThreeInRow();
 		for(const row of threeInRow) {
-			if ((!row.row[0].subtractVector(row.direction).isOutOfBounds()) && this.getGrid().getSymbolAt(row.row[0].subtractVector(row.direction)) === GameSymbol.NONE) {
-				priorities[findIndex(row.row[0].subtractVector(row.direction), cells)] += AIv3.THREE_PROMOTE_PRIORITY;
+			if (this.getSymbolInDirection(row) === GameSymbol.NONE) {
+				priorities[this.findSymbolIndexInDirection(row, cells)] += AIv3.THREE_PROMOTE_PRIORITY;
 			}
-			if ((!row.row[2].addVector(row.direction).isOutOfBounds()) && this.getGrid().getSymbolAt(row.row[2].addVector(row.direction)) === GameSymbol.NONE) {
-				priorities[findIndex(row.row[2].addVector(row.direction), cells)] += AIv3.THREE_PROMOTE_PRIORITY;
+			if (this.getSymbolInDirection(row, 2, 1) === GameSymbol.NONE) {
+				priorities[this.findSymbolIndexInDirection(row, cells, 2, 1)] += AIv3.THREE_PROMOTE_PRIORITY;
 			}
 		}
 

@@ -4,7 +4,7 @@ import {Vector2} from "./vector";
 import {AIResult, AIv3} from "./ai";
 
 export const GRID_SIZE: number = 15;
-export const IS_DEBUG_ENABLED: boolean = true;
+export const IS_DEBUG_ENABLED: boolean = false;
 
 console.log("Starting the application");
 
