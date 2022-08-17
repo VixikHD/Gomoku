@@ -126,11 +126,11 @@ export class GameModel {
 	private readonly symbol: GameSymbol;
 
 	// 2
-	private twoInRow: SymbolRow[] = [];
+	private openTwoInRow: SymbolRow[] = [];
+	private closedTwoInRow: SymbolRow[] = [];
 	// 3
 	private openThreeInRow: SymbolRow[] = [];
 	private closedThreeInRow: SymbolRow[] = [];
-	private openSplitThreeInRow: SymbolRow[] = [];
 	// 4
 	private openFourInRow: SymbolRow[] = [];
 	private closedFourInRow: SymbolRow[] = [];
@@ -192,7 +192,7 @@ export class GameModel {
 		switch(row.row.length) {
 			case 2:
 				if(!closed) {
-					this.twoInRow.push(row);
+					this.openTwoInRow.push(row);
 				}
 				break;
 			case 3:
@@ -271,15 +271,23 @@ export class GameModel {
 	}
 
 	public getTwoInRow(): SymbolRow[] {
-		return this.twoInRow;
+		return this.openTwoInRow;
+	}
+
+	public getClosedTwoInRow(): SymbolRow[] {
+		return this.closedTwoInRow;
+	}
+
+	public getOpenThreeInRow(): SymbolRow[] {
+		return this.openThreeInRow;
 	}
 
 	public getClosedThreeInRow(): SymbolRow[] {
 		return this.closedThreeInRow;
 	}
 
-	public getOpenThreeInRow(): SymbolRow[] {
-		return this.openThreeInRow;
+	public getOpenFourInRow(): SymbolRow[] {
+		return this.openFourInRow;
 	}
 
 	public getClosedFourInRow(): SymbolRow[] {
@@ -288,9 +296,5 @@ export class GameModel {
 
 	public getFiveInRow(): SymbolRow[] {
 		return this.fiveInRow;
-	}
-
-	public getOpenFourInRow(): SymbolRow[] {
-		return this.openFourInRow;
 	}
 }

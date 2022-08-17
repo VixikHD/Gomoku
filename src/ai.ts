@@ -30,6 +30,32 @@ class AIv1 {
 		this.grid = grid;
 	}
 
+	protected getSymbolInDirection(row: SymbolRow, index: number = 0, multiplier: number = -1): GameSymbol {
+		if(row.row[index] === undefined) {
+			return undefined;
+		}
+
+		let pos: Vector2 = row.row[index].addVector(row.direction.multiply(multiplier));
+		if(pos.isOutOfBounds()) {
+			return undefined;
+		}
+
+		return this.grid.getSymbolAt(pos);
+	}
+
+	protected findSymbolIndexInDirection(row: SymbolRow, cells: Vector2[], index: number = 0, multiplier: number = -1): number {
+		if(row.row[index] === undefined) {
+			return undefined;
+		}
+
+		let pos: Vector2 = row.row[index].addVector(row.direction.multiply(multiplier));
+		if(pos.isOutOfBounds()) {
+			return undefined;
+		}
+
+		return findIndex(pos, cells)
+	}
+
 	public play(symbol: GameSymbol): AIResult {
 		let emptyCells: Vector2[] = this.grid.getEmptyCells();
 		let priorities: number[] = [];
@@ -42,7 +68,7 @@ class AIv1 {
 		let maxPriority: number = -1;
 		let finalPosition: Vector2;
 		for(let i: number = 0; i < priorities.length; ++i) {
-			if(priorities[i] == maxPriority && Math.random() > 0.7) {
+			if(priorities[i] === maxPriority && Math.random() > 0.7) {
 				finalPosition = emptyCells[i];
 			} else
 				if(priorities[i] > maxPriority) {
@@ -168,6 +194,25 @@ class AIv2 extends AIv1 {
 				priorities[findIndex(row.row[3].subtractVector(row.direction), cells)] += AIv2.HALF_OPEN_FOUR_ROW_PRIORITY;
 			} else if((!row.row[3].addVector(row.direction).isOutOfBounds()) && this.getGrid().getSymbolAt(row.row[3].addVector(row.direction)) === GameSymbol.NONE) {
 				priorities[findIndex(row.row[3].addVector(row.direction), cells)] += AIv2.HALF_OPEN_FOUR_ROW_PRIORITY;
+			}
+		}
+
+		// 2 + 2
+		let twoInRow: SymbolRow[] = gameModel.getTwoInRow().concat(gameModel.getClosedTwoInRow());
+		for(const row of twoInRow) {
+			if(
+				this.getSymbolInDirection(row) === GameSymbol.NONE &&
+				this.getSymbolInDirection(row, 0, -2) === opponentSymbol(symbol) &&
+				this.getSymbolInDirection(row, 0, -3) === opponentSymbol(symbol)
+			) {
+				priorities[this.findSymbolIndexInDirection(row, cells)] += AIv2.HALF_OPEN_FOUR_ROW_PRIORITY;
+			}
+			if(
+				this.getSymbolInDirection(row, 1, 1) === GameSymbol.NONE &&
+				this.getSymbolInDirection(row, 1, 2) === opponentSymbol(symbol) &&
+				this.getSymbolInDirection(row, 1, 3) === opponentSymbol(symbol)
+			) {
+				priorities[this.findSymbolIndexInDirection(row, cells, 1, 1)] += AIv2.HALF_OPEN_FOUR_ROW_PRIORITY;
 			}
 		}
 
