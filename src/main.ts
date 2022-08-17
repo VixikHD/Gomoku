@@ -1,10 +1,10 @@
 import {indexToVector, vectorToIndex} from "./convert";
 import {GameGrid, GameSymbol} from "./game-model";
 import {Vector2} from "./vector";
-import {AIResult, AIv2} from "./ai";
+import {AIResult, AIv3} from "./ai";
 
 export const GRID_SIZE: number = 15;
-export const IS_DEBUG_ENABLED: boolean = false;
+export const IS_DEBUG_ENABLED: boolean = true;
 
 console.log("Starting the application");
 
@@ -64,7 +64,7 @@ function saveSymbol(position: Vector2, symbol: GameSymbol): void {
 
 // Game stuff
 function handleClick(clickPosition: Vector2): void {
-	let aiResult: AIResult = (new AIv2(gameGrid)).play(aiSymbol);
+	let aiResult: AIResult = (new AIv3(gameGrid)).play(aiSymbol);
 
 	displaySymbol(aiResult.finalPos, aiSymbol);
 	saveSymbol(aiResult.finalPos, aiSymbol);

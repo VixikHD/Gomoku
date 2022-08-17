@@ -289,4 +289,8 @@ export class GameModel {
 	public getFiveInRow(): SymbolRow[] {
 		return this.fiveInRow;
 	}
+
+	public getOpenFourInRow(): SymbolRow[] {
+		return this.openFourInRow;
+	}
 }
