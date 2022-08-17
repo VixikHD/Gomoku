@@ -35,7 +35,7 @@ $(function () {
 
 		if(gameGrid.findFiveInARow() === playerSymbol) {
 			playing = false;
-			console.log("Congrats! You have won the game!");
+			document.getElementById("message").innerText = "Congrats! You have won the game! To play again, reload the page.";
 			return;
 		}
 
@@ -45,14 +45,14 @@ $(function () {
 
 // Display stuff
 function displaySymbol(position: Vector2, symbol: GameSymbol): void {
-	$(".game-grid")
+	$("#game-grid")
 		.children()
 		.eq(vectorToIndex(position))
 		.addClass(symbol);
 }
 
 function displayPriority(position: Vector2, priority: number) {
-	$(".game-grid")
+	$("#game-grid")
 		.children()
 		.eq(vectorToIndex(position))
 		.text(priority.toString());
@@ -86,6 +86,6 @@ function handleClick(clickPosition: Vector2): void {
 
 	if(gameGrid.findFiveInARow() === aiSymbol) {
 		playing = false;
-		console.log("You lose");
+		document.getElementById("message").innerText = "You lose the game";
 	}
 }

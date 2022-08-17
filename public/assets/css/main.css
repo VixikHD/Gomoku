@@ -1,3 +1,7 @@
+html {
+    font-family: "Roboto Thin", sans-serif;
+}
+
 .hint-spoiler {
     margin-top: 20px;
 }
@@ -29,11 +33,17 @@
     background-size: 24px;
 }
 
-.game-grid {
+#container {
+    display: flex;
+    justify-content: center;
+}
+
+#game-grid {
     display: grid;
     border: 2px solid #bbb;
     grid-template-columns: repeat(15, 30px);
     grid-template-rows: repeat(15, 30px);
     width: 450px;
     height: 450px;
+    margin-bottom: 20px;
 }
